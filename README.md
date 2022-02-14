@@ -110,7 +110,7 @@ The settings screen is simple and concise:
 
 ![Spodcast feed manager settings](/resources/screenshots/relevant_part_of_spodcast_settings_screen.png?raw=true "Spodcast feed manager: Settings")
 
-Each show has its own _sync_ and _keep_ settings. Use the _Delete_ button to, well, delete the show. Use _Refresh_ retrieve the last [_sync_] episodes, skipping those which have already been synced.
+Each show has its own _sync_ and _keep_ settings. Use the _Delete_ button to, well, delete the show. Use _Refresh_ to retrieve the last [_sync_] episodes, skipping those which have already been synced.
 
 ![Show controls](/resources/screenshots/sync_keep_delete_refresh.png?raw=true "Configure _sync_ and _keep_ settings for each show")
 
