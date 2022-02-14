@@ -41,7 +41,7 @@ $ pip install .
 Once installed this way it can be uninstalled using `pip uninstall spodcast` if so required. If you're planning to use the RSS proxy and web UI you need to make sure the `spodcast` command is available to the web server user.
 
 ## Usage
-To use _Spodcast_ you need a (free) _Spotify_ account, if you don't have one yet you'll need to take care of that first at https://www.spotify.com/se/signup/ . If you plan to use the RSS proxy feature you'll also need a web server to serve the RSS feed(s), any server which supports PHP will do here. See [Web server requirements](#webserver) for more information on how to configure the server.
+To use _Spodcast_ you need a (free) _Spotify_ account, if you don't have one yet you'll need to take care of that first at https://www.spotify.com/signup/ . If you plan to use the RSS proxy feature you'll also need a web server to serve the RSS feed(s), any server which supports PHP will do here. See [Web server requirements](#webserver) for more information on how to configure the server.
 
 Here's `spodcast` displaying its help message:
 ```
