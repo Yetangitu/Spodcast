@@ -14,7 +14,7 @@ _Spotify_ hosts podcasts through their proprietary API and does not offer an RSS
                   --------------
                         |             ___________
   -------   APIv1   ----V---         /           \
- |_Spotify_|- - - - >|_Spodcast_|------>| File system |
+ |Spotify|- - - - >|Spodcast|------>| File system |
   -------           --------         \___________/
 ```
 ### You want to listen to an episode using your old, unsupported but still functional phone...
