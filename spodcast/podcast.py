@@ -181,6 +181,6 @@ def download_episode(episode_id) -> None:
             rss_file_name = os.path.join(show_directory, RSS_FEED_FILE_NAME)
             if not os.path.isfile(rss_file_name):
                 rss_file = open(rss_file_name, "w")
-                rss_file.write(RSS_FEED_CODE)
+                rss_file.write(RSS_FEED_CODE())
                 rss_file.close()
 

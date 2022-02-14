@@ -14,7 +14,8 @@ from librespot.audio.decoders import VorbisOnlyAudioQuality
 from librespot.core import Session
 
 from spodcast.config import Config
-from spodcast.const import CREDENTIALS_PREFIX, TYPE, USER_READ_EMAIL, OFFSET, LIMIT, PLAYLIST_READ_PRIVATE, USER_LIBRARY_READ
+from spodcast.const import CREDENTIALS_PREFIX, TYPE, USER_READ_EMAIL, OFFSET, LIMIT
+from spodcast.feedgenerator import RSS_FEED_FILE_NAME, RSS_INDEX_CODE
 
 class Spodcast:    
     SESSION: Session = None
@@ -28,6 +29,18 @@ class Spodcast:
         log = logging.getLogger(__name__)
         Spodcast.LOG = log
         log.debug("args: %s", args)
+        if args.prepare_feed is True:
+            root_path=Spodcast.CONFIG.get_root_path()
+            os.makedirs(root_path, exist_ok=True)
+            if os.path.exists(root_path):
+                index_file_name = os.path.join(root_path, RSS_FEED_FILE_NAME)
+                if not os.path.isfile(index_file_name):
+                    rss_file = open(index_file_name, "w")
+                    rss_file.write(RSS_INDEX_CODE(Spodcast.CONFIG.get_bin_path(), os.path.basename(Spodcast.CONFIG.get_config_path())))
+                    rss_file.close()
+            else:
+                sys.exit(f"Can not create root path {root_path}")
+
         if args.login:
             filename = args.login
             if os.path.exists(filename):

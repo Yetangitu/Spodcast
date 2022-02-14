@@ -1,10 +1,12 @@
 import json
 import os
+import sys
 from typing import Any
 
 CONFIG_FILE_PATH = '../spodcast.json'
 
 CONFIG_DIR = 'CONFIG_DIR'
+CONFIG_PATH = 'CONFIG_PATH'
 ROOT_PATH = 'ROOT_PATH'
 SKIP_EXISTING_FILES = 'SKIP_EXISTING_FILES'
 CHUNK_SIZE = 'CHUNK_SIZE'
@@ -23,11 +25,11 @@ CONFIG_VALUES = {
                             'help': 'set root path for podcast cache' },
     SKIP_EXISTING_FILES:  { 'default': 'True',
                             'type': bool,
-                            'arg': '--skip-existing-files',
+                            'arg': '--skip-existing',
                             'help': 'skip files with the same name and size' },
     RETRY_ATTEMPTS:       { 'default': '5',
                             'type': int,
-                            'arg': '--retry-attemps',
+                            'arg': '--retry',
                             'help': 'retry count for Spotify API access' },
     MAX_EPISODES:         { 'default': '1000',
                             'type': int,
@@ -51,7 +53,7 @@ CONFIG_VALUES = {
                             'help': 'path to credentials file' },
     ENABLE_RSS_FEED:      { 'default': 'True',
                             'type': bool,
-                            'arg': '--enable-rss-feed',
+                            'arg': '--rss',
                             'help': 'add a (php) RSS feed server and related metadata for feed. To serve the feed, point a web server at the spodcast root path as configured using --root-path.' },
     LOG_LEVEL:            { 'default': 'warning',
                             'type': str,
@@ -65,6 +67,7 @@ class Config:
     @classmethod
     def load(cls, args) -> None:
         app_dir = os.path.dirname(__file__)
+        dump_config=False
 
         config_fp = CONFIG_FILE_PATH
         if args.config_location:
@@ -75,8 +78,8 @@ class Config:
         # Load config from spodcast.json
 
         if not os.path.exists(true_config_file_path):
-            with open(true_config_file_path, 'w', encoding='utf-8') as config_file:
-                json.dump(cls.get_default_json(), config_file, indent=4)
+            dump_config=True
+            os.makedirs(os.path.dirname(true_config_file_path), exist_ok=True)
             cls.Values = cls.get_default_json()
         else:
             with open(true_config_file_path, encoding='utf-8') as config_file:
@@ -98,15 +101,29 @@ class Config:
             if key.lower() in vars(args) and vars(args)[key.lower()] is not None:
                 cls.Values[key] = cls.parse_arg_value(key, vars(args)[key.lower()])
 
-        # this value should not be overriden
+        # dump current config to config file
+
+        if dump_config:
+            with open(true_config_file_path, 'w', encoding='utf-8') as config_file:
+                json.dump(cls.get_config_json(), config_file, indent=4)
+
+        # these values should not be overriden
 
         cls.Values[CONFIG_DIR] = os.path.dirname(true_config_file_path)
+        cls.Values[CONFIG_PATH] = str(true_config_file_path)
 
     @classmethod
     def get_default_json(cls) -> Any:
         r = {}
         for key in CONFIG_VALUES:
             r[key] = CONFIG_VALUES[key]['default']
+        return r
+
+    @classmethod
+    def get_config_json(cls) -> Any:
+        r = {}
+        for key in CONFIG_VALUES:
+            r[key]=cls.Values[key]
         return r
 
     @classmethod
@@ -172,3 +189,11 @@ class Config:
     @classmethod
     def get_log_level(cls) -> str:
         return str(cls.get(LOG_LEVEL)).upper()
+
+    @classmethod
+    def get_bin_path(cls) -> str:
+        return str(sys.argv[0])
+
+    @classmethod
+    def get_config_path(cls) -> str:
+        return cls.get(CONFIG_PATH)

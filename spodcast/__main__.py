@@ -10,6 +10,10 @@ def main():
                         type=str,
                         help='Specify the spodcast.json location')
 
+    parser.add_argument('-p', '--prepare-feed',
+                       action='store_true',
+                       help='Installs RSS feed server code in ROOT_PATH.')
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('urls',
                        type=str,
@@ -21,6 +25,7 @@ def main():
     group.add_argument('-l', '--login',
                        type=str,
                        help='Reads username and password from file passed as argument and stores credentials for later use.')
+
 
     for configkey in CONFIG_VALUES:
         parser.add_argument(CONFIG_VALUES[configkey]['arg'],

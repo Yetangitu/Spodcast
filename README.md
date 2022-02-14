@@ -37,22 +37,22 @@ $ git clone https://github.com/Yetangitu/spodcast.git
 $ cd spodcast
 $ pip install .
 ```
+
 Once installed this way it can be uninstalled using `pip uninstall spodcast` if so required.
 
-Another way of running Spodcast is by using the zipapp which can be downloaded from the `releases/X.Y.Z` directory, look for `spodcast.pyz` and make sure to get the latest version. Run the zipapp using `python spodcast.pyz`.
-
 ## Usage
-To use Spodcast you need a (free) Spotify account, if you don't have one yet you'll need to take care of that first at https://www.spotify.com/se/signup/ . You'll also need a web server to serve the RSS feed(s), any server which supports PHP will do here. See [Web server requirements](#webserver) for more information on how to configure the server.
+To use Spodcast you need a (free) Spotify account, if you don't have one yet you'll need to take care of that first at https://www.spotify.com/se/signup/ . If you plan to use the RSS proxy feature you'll also need a web server to serve the RSS feed(s), any server which supports PHP will do here. See [Web server requirements](#webserver) for more information on how to configure the server.
 
 Here's `spodcast` displaying its help message:
 ```
 $ spodcast -h
-usage: spodcast [-h] [--config-location CONFIG_LOCATION] [--root-path ROOT_PATH]
-        [--skip-existing-files SKIP_EXISTING_FILES] [--retry-attemps RETRY_ATTEMPS]
-        [--max-episodes MAX_EPISODES] [--chunk-size CHUNK_SIZE]
-        [--download-real-time DOWNLOAD_REAL_TIME] [--language LANGUAGE]
-        [--credentials-location CREDENTIALS_LOCATION] [--enable-rss-feed ENABLE_RSS_FEED]
-        [--log-level LOG_LEVEL] urls ...
+usage: spodcast [-h] [-c CONFIG_LOCATION] [-p] [-l LOGIN] [--root-path ROOT_PATH]
+                [--skip-existing SKIP_EXISTING] [--retry RETRY]
+                [--max-episodes MAX_EPISODES] [--chunk-size CHUNK_SIZE]
+                [--download-real-time DOWNLOAD_REAL_TIME] [--language LANGUAGE]
+                [--credentials-location CREDENTIALS_LOCATION] [--rss RSS]
+                [--log-level LOG_LEVEL]
+                [urls ...]
 
 A caching Spotify podcast to RSS proxy.
 
@@ -61,14 +61,17 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config-location CONFIG_LOCATION
+  -c CONFIG_LOCATION, --config-location CONFIG_LOCATION
                         Specify the spodcast.json location
+  -p, --prepare-feed    Installs RSS feed server code in ROOT_PATH.
+  -l LOGIN, --login LOGIN
+                        Reads username and password from file passed as argument and stores
+                        credentials for later use.
   --root-path ROOT_PATH
                         set root path for podcast cache
-  --skip-existing-files SKIP_EXISTING_FILES
+  --skip-existing SKIP_EXISTING
                         skip files with the same name and size
-  --retry-attemps RETRY_ATTEMPS
-                        retry count for Spotify API access
+  --retry RETRY         retry count for Spotify API access
   --max-episodes MAX_EPISODES
                         number of episodes to download
   --chunk-size CHUNK_SIZE
@@ -78,28 +81,35 @@ optional arguments:
   --language LANGUAGE   preferred content language
   --credentials-location CREDENTIALS_LOCATION
                         path to credentials file
-  --enable-rss-feed ENABLE_RSS_FEED
-                        add a (php) RSS feed server and related metadata for feed. To serve the feed, point a web server at the spodcast root path as configured using --root-path.
+  --rss RSS             add a (php) RSS feed server and related metadata for feed. To serve
+                        the feed, point a web server at the spodcast root path as configured
+                        using --root-path.
   --log-level LOG_LEVEL
                         log level (debug/info/warning/error/critical)
 ```
-### Using Spodcast to proxy a Spotify podcast feed
-The following example shows how to use the `spodcast` command to create a feed with the last 20 episodes (`--max-episodes 20`) of _The Joe Rogan Experience_ podcast, this link for which can be found by using the Spotify web app - either copy it from the browser location bar or use _Share->Copy Show Link_ from the show menu (three dots next to the _Follow_ button). The feed will be created in the `/mnt/audio/spodcast` directory (`--root-path /mnt/audio/spodcast`). By using `--log-level warning` Spodcast will show which episodes have been cached, if no files are cached and assuming no errors occurred the program will not produce any output (which will keep `cron` from filling your mailbox).
+### Using Spodcast to proxy Spotify podcasts to RSS
+The following example shows how to use the `spodcast` command to prepare the feed root directory and add a Spotify account to be used. It specifies the configuration file to create (`-c /mnt/audio/podcast/spodcast.json`) and the root path where podcasts will be downloaded to (`--root-path /mnt/audio/spodcast`). The `-p` option tells _spodcast_ to prepare the RSS feed server in the root directory which will also be used to store the credential file created by the `-l spotify.rc` command. That `spotify.rc` file is a plain text file containing the username and password (separated by a single space character) to use to login to Spotify. It is only needed to create the stored credentials file(s) so it can be deleted once _Spotcast_ is up and running.
 ```
-spodcast --config-location ~/.config/spodcast/spodcast.json --credentials-location ~/.config/spodcast/credentials.json --root-path /mnt/audio/spodcast --log-level warning --max-episodes 20 https://open.spotify.com/show/4rOoJ6Egrf8K2IrywzwOMk
+spodcast -c /mnt/audio/podcast/spodcast.json --root-path /mnt/audio/spodcast -p -l /home/exampleuser/spotify.rc
 ```
-If this is the first time `spodcast` was used it will ask for your Spotify account information (username and password), on subsequent invocations it will use stored credentials. Edit the stored config file (see `--config-location`) to reflect your preferences, any option set there can be temporarily overridden by using command line options.
-Once the initial feed has been created it can be kept up to date by running the same command regularly. Assuming Spodcast is run daily (using `cron` or `Task Scheduler`) and depending on the show update frequency it makes sense to lower the `--max-episodes`, `2` or `3` is a good choice for most shows which have daily updates but sometimes publish more than one episode per day.
+Configure the [Web server](#webserver) using the path given as root path (in this example that would be `/mnt/audio/spodcast`) as web root, making sure to exclude files with `.json` and `.info` extenstions to avoid leaking your Spotify credentials (even though these are stored in hashed form using hashed file names). Now point a browser at the site you configured for _Spodcast_ and you're ready to add the first show or episode. This is done easily by entering the Spotify show/episode url (e.g. `https://open.spotify.com/show/4rOoJ6Egrf8K2IrywzwOMk` for _The Joe Rogan Experience_ for the whole show, `https://open.spotify.com/episode/2rYwwE7hcpgsDo9vRVHxAI?si=24fb00294b7f40db` for a specific episode, notice the `show` and `episode` parts of these links) and either hitting _Enter_ or clicking the _Add_ button. Spodcast will now create a directory under the given root path, add the `.index.php` RSS feed generator script and the `index.info` show info URL used by that script and the RSS manager script and whatever episode(s) you decided to sync.
 
-Point your RSS clients at the Spodcast feed URL for this show and you should see new episodes appear after they were published on Spotify and subsequently picked up on the next `spodcast` invocation. For the example given in the [Web server requirements](#webserver) example that URL would be `http://spodcast.example.org/The_Joe_Rogan_Experience`.
+Once the initial feed has been created it can be kept up to date by enabling the feed update service found in the _Settings_ menu. Select the update frequency and the start time and click _Update_, this will create a _cron_ job for the web server which will run the Spodcast manager script to update feeds. While the update frequency is configured for all shows simultaneously this is not the case for the number of episodes to _sync_ and the number to _keep_ in cache, these can be configured individually for each show. The idea here is that some shows may publish more than one episode between update intervals so by fetching the last X episodes on each update nothing will be missed. Episodes which have already been synced will not be synced again so no time or bandwidth is wasted. In the same vein the number of episodes to _keep_ can be configured to make sure your RSS clients have the opportunity to download these before they are rotated out of cache. Once more than X (being the value chosen for _keep_) episodes have been downloaded the oldest episodes will be deleted to keep the total no more than X.
 
-### Using Spodcast to download a single episode
-Spodcast can also be used stand-alone (without the need for a web server) by either just ignoring the feed-related files (`.index.php`, `index.info` plus a `*.info` file for every episode) or by disabling the RSS feed using `--enable-rss-feed no` on the command line. To get single episode links use the Spotify web app and select _Share->Copy Episode Link_ from the episode menu (three dots in the top-right corner of the episode block). The following example shows `spodcast` ready to download a single episode:
+Point your RSS clients at the Spodcast feed URL for this show and you should see new episodes appear after they were published on Spotify and subsequently picked up on the next update. For the example given in the [Web server requirements](#webserver) example that URL would be `http://spodcast.example.org/The_Joe_Rogan_Experience`.
+
+### Using the Spodcasti CLI command to download a single episode
+Spodcast can also be used stand-alone (without the need for a web server) by either just ignoring the feed-related files (`.index.php`, `index.info` plus a `*.info` file for every episode) or by disabling the RSS feed using `--rss no` on the command line. Instead of using the `-l spotify.rc` command to add _Spotify_ credentials it is possible to point _Spotcast_ at a single `credentials.json` file (which will be created if it does not exist yet`), `spotcast` wil ask for the username and password when needed. To get single episode links use the Spotify web app and select _Share->Copy Episode Link_ from the episode menu (three dots in the top-right corner of the episode block). The following example shows (an already configured instance of) `spodcast` ready to download a single episode:
 ```
-spodcast --config-location ~/.config/spodcast/spodcast.json --enable-rss-feed no https://open.spotify.com/episode/2rYwwE7hcpgsDo9vRVHxAI?si=24fb00294b7f40db
+spodcast -c ~/.config/spodcast/spodcast.json --credentials-location ~/.config/spodcast/credentials.json --rss no https://open.spotify.com/episode/2rYwwE7hcpgsDo9vRVHxAI?si=24fb00294b7f40db
+```
+Like in the previous example _Spodcast_ will create a directory under the root path with the same name as the show from which the episode is downloaded. The episode will be downloaded into this directory under a `SHOW_NAME_-__EPISODE_NAME.[ogg|mp3]` name. Point a mediaplayer of choice at this file to play the episode.
+In "manual" mode _Spodcast_ does not do anything by itself, feeds can be kept up to date by running _Spotcast_ with the required settings for `--max-episodes` (which is the value used for _sync_ in the web UI) and the show URL. Here's how to update the _The Joe Rogan Experience_ show using the `spodcast` CLI command, syncing the last 3 episodes:
+```
+spodcast -c ~/.config/spodcast/spodcast.json --rss no --max-episodes 3 https://open.spotify.com/show/4rOoJ6Egrf8K2IrywzwOMk`
 ```
 ## Web server configuration {#webserver}
-Spodcast places a hidden `.index.php` file in the show directory which will produce an RSS feed based on the information found in all `*.info` files in that directory. Configure the server to serve that `.index.php` file as the site index. For _nginx_ the following should suffice to produce an unencrypted (HTTP) feed under the domain name `spodcast.example.org` given a feed root directory (as configured using `--root-path`) of `/mnt/audio/spodcast` with _php-fpm 7.4_ listening on `unix:/run/php/php7.4-fpm.sock`:
+Spodcast places a hidden `.index.php` file in the root path and each show directory. The one in the root directory is used to manage feeds while those in the show directories produce RSS feeds based on the information found in all `*.info` files in that directory. Configure the server to serve those `.index.php` files as index to make things work as intended. Don't forget to block all web access to files ending in `.json` and `.info` to make sure you Spotify credentials (which are stored in hashed form in files named `spodcast-cred-MD5_HASH_OF_SPOTIFY_USER_NAME.json` in the root path) can not be accessed. For _nginx_ the following should suffice to produce an unencrypted (HTTP) feed under the domain name `spodcast.example.org` given a feed root directory (as configured using `--root-path`) of `/mnt/audio/spodcast` with _php-fpm 7.4_ listening on `unix:/run/php/php7.4-fpm.sock`:
 ```
 server {
         listen 80;
@@ -110,14 +120,20 @@ server {
 
         index .index.php;
 
+        # these files should not be accessible
+        location ~\.(json|info)$ {
+                deny all;
+                return 404;
+        }
+
         location / {
                 try_files $uri $uri/ =404;
         }
 
         location ~ \.php$ {
                 include snippets/fastcgi-php.conf;
-                fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+                fastcgi_pass unix:/run/php/php7.4-fpm.sock;
         }
 }
 ```
-Examples for other web servers can be found elsewhere.
+Examples for other web servers can be found elsewhere, this is basically a default PHP configuration with the only difference being that `.index.php` is a hidden file.
