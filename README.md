@@ -102,6 +102,17 @@ Here's what the Spodcast feed manager looks like:
 
 ![Spodcast feed manager](/resources/screenshots/spodcast_showing_a_list_of_shows_likely_to_disappear_from_spotify_sooner_or_later.png?raw=true "Spodcast feed manager")
 
+...and on smaller screens it looks like this:
+
+![Spodcast feed manager on a small screen](/resources/screenshots/spodcast_is_responsive.png?raw=true "Spodcast feed manager, vertical layout on smaller screens")
+
+The settings screen is simple and concise:
+
+![Spodcast feed manager settings](/resources/screenshots/relevant_part_of_spodcast_settings_screen.png?raw=true "Spodcast feed manager: Settings")
+
+Each show has its own _sync_ and _keep_ settings. Use the _Delete_ button to, well, delete the show. Use _Refresh_ retrieve the last [_sync_] episodes, skipping those which have already been synced.
+
+![Show controls](/resources/screenshots/sync_keep_delete_refresh.png?raw=true "Configure _sync_ and _keep_ settings for each show")
 
 ### Using the _Spodcast_i CLI command to download a single episode
 _Spodcast_ can also be used stand-alone (without the need for a web server) by either just ignoring the feed-related files (`.index.php`, `index.info` plus a `*.info` file for every episode) or by disabling the RSS feed using `--rss no` on the command line. Instead of using the `-l spotify.rc` command to add _Spotify_ credentials it is possible to point _Spotcast_ at a single `credentials.json` file (which will be created if it does not exist yet`), `spotcast` wil ask for the username and password when needed. To get single episode links use the _Spotify_ web app and select _Share->Copy Episode Link_ from the episode menu (three dots in the top-right corner of the episode block). The following example shows (an already configured instance of) `spodcast` ready to download a single episode:
