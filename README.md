@@ -98,6 +98,11 @@ Once the initial feed has been created it can be kept up to date by enabling the
 
 Point your RSS clients at the _Spodcast_ feed URL for this show and you should see new episodes appear after they were published on _Spotify_ and subsequently picked up on the next update. For the example given in the [Web server requirements](#webserver) example that URL would be `http://spodcast.example.org/The_Joe_Rogan_Experience`.
 
+Here's what the Spodcast feed manager looks like:
+
+![Spodcast feed manager](/resources/screenshots/spodcast_showing_a_list_of_shows_likely_to_disappear_from_spotify_sooner_or_later.png?raw=true "Spodcast feed manager")
+
+
 ### Using the _Spodcast_i CLI command to download a single episode
 _Spodcast_ can also be used stand-alone (without the need for a web server) by either just ignoring the feed-related files (`.index.php`, `index.info` plus a `*.info` file for every episode) or by disabling the RSS feed using `--rss no` on the command line. Instead of using the `-l spotify.rc` command to add _Spotify_ credentials it is possible to point _Spotcast_ at a single `credentials.json` file (which will be created if it does not exist yet`), `spotcast` wil ask for the username and password when needed. To get single episode links use the _Spotify_ web app and select _Share->Copy Episode Link_ from the episode menu (three dots in the top-right corner of the episode block). The following example shows (an already configured instance of) `spodcast` ready to download a single episode:
 ```
