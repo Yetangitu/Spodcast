@@ -129,6 +129,7 @@ def download_episode(episode_id) -> None:
         log.warning('Skipping episode (episode NOT FOUND)')
     else:
         filename = clean_filename(podcast_name + ' - ' + episode_name)
+        log.debug(Spodcast.invoke_url(EPISODE_DOWNLOAD_URL(episode_id)))
         download_url = Spodcast.invoke_url(EPISODE_DOWNLOAD_URL(episode_id))[1]["data"]["episode"]["audio"]["items"][-1]["url"]
         log.debug(f"download_url: {download_url}")
         show_directory = os.path.realpath(os.path.join(Spodcast.CONFIG.get_root_path(), clean_filename(podcast_name) + '/'))

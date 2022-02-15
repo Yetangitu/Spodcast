@@ -4,8 +4,8 @@ RSS_FEED_SHOW_INDEX = 'index'
 
 def RSS_FEED_CODE():
     return r'''<?php
-SHOW_INDEX = "''' + RSS_FEED_SHOW_INDEX + r'''";
-INFO = "''' + RSS_FEED_INFO_EXTENSION + r'''";
+const SHOW_INDEX = "''' + RSS_FEED_SHOW_INDEX + r'''";
+const INFO = "''' + RSS_FEED_INFO_EXTENSION + r'''";
 header("Content-type: text/xml");
 $feed_name = "Spodcast autofeed";
 $feed_description = "Spodcast autofeed";
