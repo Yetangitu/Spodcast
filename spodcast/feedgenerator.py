@@ -6,10 +6,11 @@ def RSS_FEED_CODE():
     return r'''<?php
 const SHOW_INDEX = "''' + RSS_FEED_SHOW_INDEX + r'''";
 const INFO = "''' + RSS_FEED_INFO_EXTENSION + r'''";
+$PROTOCOL + ($HTTPS) ? "https://" : "http://";
 header("Content-type: text/xml");
 $feed_name = "Spodcast autofeed";
 $feed_description = "Spodcast autofeed";
-$base_url = strtok('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], '?');
+$base_url = strtok($PROTOCOL . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], '?');
 $feed_logo = "$base_url/.image.jpg";
 $feed_link = $base_url;
 $allowed_extensions = array('mp4','m4a','aac','mp3','ogg');
