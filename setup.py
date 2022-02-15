@@ -11,7 +11,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="spodcast",
-    version="0.3.2",
+    version="0.3.3",
     description="A caching Spotify podcast to RSS proxy.",
     long_description='README.md',
     long_description_content_type="text/markdown",
