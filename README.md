@@ -31,7 +31,13 @@ Thus, by the simple expedient of using a piece of code which produces another pi
 
 ## Installation
 
-_Spodcast_ can be installed from source by running `pip install .` from within the package root directory:
+_Spodcast_ is available as an installable package on PyPi, just run:
+```
+$ pip install spodcast
+```
+...and you're set in case you only want to use _Spodcast_ from your own account. Run this command as root to install it globally which makes it available to e.g. the web server user (`www-data` on Debian and derived distributions), this is necessary if you want to make use of the RSS feed service.
+
+_Spodcast_ can be installed from  source by running `pip install .` (or `pip install -e .` if you want to be able to hack the code without needing to re-install after every change) from within the package root directory:
 ```shell
 $ git clone https://github.com/Yetangitu/spodcast.git
 $ cd spodcast
