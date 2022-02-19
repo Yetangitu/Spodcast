@@ -93,6 +93,43 @@ optional arguments:
   --log-level LOG_LEVEL
                         log level (debug/info/warning/error/critical)
 ```
+
+### Usage with Docker: 
+
+Pre-built images are [available at Docker Hub](https://hub.docker.com/r/heywoodlh/spodcast). Refer to documentation below on how to build the image locally if that is desired.
+
+Prepare `spodcast` directory (this example assumes you will store Spodcast's data in `/tmp/spodcast`):
+
+```
+mkdir -p /tmp/spodcast
+
+echo 'spotify_username spotify_password' > /tmp/spodcast/spotify.rc
+```
+
+Login to Spotify and configure `spodcast` initially:
+
+```
+docker run -it -v /tmp/spodcast:/data heywoodlh/spodcast -c /data/spodcast.json --root-path /data/html --log-level info --credentials-location /data/creds.json -p -l /data/spotify.rc
+```
+
+Now run `spodcast` (this example will download The Joe Rogan Experience to `/tmp/spodcast/html` on the Docker host):
+
+```
+docker run -it -v /tmp/spodcast:/data heywoodlh/spodcast -c /data/spodcast.json --log-level info --max-episodes 10 'https://open.spotify.com/show/4rOoJ6Egrf8K2IrywzwOMk'
+```
+
+#### Build the image locally:
+
+If you would prefer to build the image locally: 
+
+```
+git clone https://github.com/Yetangitu/Spodcast && cd Spodcast
+
+docker build -t spodcast -f docker/Dockerfile .
+```
+
+Docker usage will be exactly the same as the examples above with the exception that you will want to replace the `heywoodlh/spodcast` image with `spodcast`.
+
 ### Using _Spodcast_ to proxy _Spotify_ podcasts to RSS
 The following example shows how to use the `spodcast` command to prepare the feed root directory and add a _Spotify_ account to be used. It specifies the configuration file to create (`-c /mnt/audio/podcast/spodcast.json`) and the root path where podcasts will be downloaded to (`--root-path /mnt/audio/spodcast`). The `-p` option tells _spodcast_ to prepare the RSS feed server in the root directory which will also be used to store the credential file created by the `-l spotify.rc` command. That `spotify.rc` file is a plain text file containing the username and password (separated by a single space character) to use to login to _Spotify_. It is only needed to create the stored credentials file(s) so it can be deleted once _Spotcast_ is up and running.
 ```
