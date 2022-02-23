@@ -37,7 +37,7 @@ if(file_exists($sinfo)) {
             <link><?php echo $feed_link; ?></link>
         </image>
         <description><?php echo $feed_description; ?></description>
-        <atom:link href="<?php echo $PROTOCOL.$base_url; ?>" rel="self" type="application/rss+xml" />
+        <atom:link href="<?php echo $base_url; ?>" rel="self" type="application/rss+xml" />
 <?php
 $raw_files = scandir ('.');
 usort($raw_files, function($a, $b) {
