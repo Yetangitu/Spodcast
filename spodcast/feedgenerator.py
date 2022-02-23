@@ -6,7 +6,7 @@ def RSS_FEED_CODE():
     return r'''<?php
 const SHOW_INDEX = "''' + RSS_FEED_SHOW_INDEX + r'''";
 const INFO = "''' + RSS_FEED_INFO_EXTENSION + r'''";
-$PROTOCOL + ($HTTPS) ? "https://" : "http://";
+$PROTOCOL = ($HTTPS) ? "https://" : "http://";
 header("Content-type: text/xml");
 $feed_name = "Spodcast autofeed";
 $feed_description = "Spodcast autofeed";
@@ -37,7 +37,7 @@ if(file_exists($sinfo)) {
             <link><?php echo $feed_link; ?></link>
         </image>
         <description><?php echo $feed_description; ?></description>
-        <atom:link href="<?php echo $base_url; ?>" rel="self" type="application/rss+xml" />
+        <atom:link href="<?php echo $PROTOCOL.$base_url; ?>" rel="self" type="application/rss+xml" />
 <?php
 $raw_files = scandir ('.');
 usort($raw_files, function($a, $b) {
