@@ -15,7 +15,7 @@ from librespot.core import Session
 
 from spodcast.config import Config
 from spodcast.const import CREDENTIALS_PREFIX, TYPE, USER_READ_EMAIL, OFFSET, LIMIT
-from spodcast.feedgenerator import RSS_FEED_FILE_NAME, RSS_INDEX_CODE
+from spodcast.feedgenerator import RSS_FEED_FILE_NAME, RSS_INDEX_CODE, get_index_version
 
 class Spodcast:    
     SESSION: Session = None
@@ -34,9 +34,9 @@ class Spodcast:
             os.makedirs(root_path, exist_ok=True)
             if os.path.exists(root_path):
                 index_file_name = os.path.join(root_path, RSS_FEED_FILE_NAME)
-                if not os.path.isfile(index_file_name):
+                if not os.path.isfile(index_file_name) or int(get_index_version(index_file_name)) < Spodcast.CONFIG.get_version_int():
                     rss_file = open(index_file_name, "w")
-                    rss_file.write(RSS_INDEX_CODE(Spodcast.CONFIG.get_bin_path(), os.path.basename(Spodcast.CONFIG.get_config_path())))
+                    rss_file.write(RSS_INDEX_CODE(Spodcast.CONFIG.get_bin_path(), os.path.basename(Spodcast.CONFIG.get_config_path()), Spodcast.CONFIG.get_version_str()))
                     rss_file.close()
             else:
                 sys.exit(f"Can not create root path {root_path}")
@@ -142,7 +142,7 @@ class Spodcast:
         responsejson = response.json()
 
         if 'error' in responsejson:
-            if tryCount < (cls.CONFIG.get_retry_attempts() - 1):
+            if tryCount < (cls.CONFIG.get_retry() - 1):
                 Spodcast.LOG.warning(f"Spotify API Error (try {tryCount + 1}) ({responsejson['error']['status']}): {responsejson['error']['message']}")
                 time.sleep(5)
                 return cls.invoke_url(url, tryCount + 1)

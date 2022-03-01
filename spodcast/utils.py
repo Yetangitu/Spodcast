@@ -4,7 +4,7 @@ import unicodedata
 from enum import Enum
 from typing import List, Tuple
 
-from .spodcast import Spodcast
+from spodcast.spodcast import Spodcast
 
 valid_filename_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
 

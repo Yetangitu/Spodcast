@@ -1,5 +1,6 @@
 import json
 import os
+import pkg_resources
 import sys
 from typing import Any
 
@@ -7,16 +8,20 @@ CONFIG_FILE_PATH = '../spodcast.json'
 
 CONFIG_DIR = 'CONFIG_DIR'
 CONFIG_PATH = 'CONFIG_PATH'
+VERSION = 'VERSION'
+VERSION_STR = pkg_resources.require("Spodcast")[0].version
+
 ROOT_PATH = 'ROOT_PATH'
 SKIP_EXISTING_FILES = 'SKIP_EXISTING_FILES'
 CHUNK_SIZE = 'CHUNK_SIZE'
 DOWNLOAD_REAL_TIME = 'DOWNLOAD_REAL_TIME'
 LANGUAGE = 'LANGUAGE'
 CREDENTIALS_LOCATION = 'CREDENTIALS_LOCATION'
-RETRY_ATTEMPTS = 'RETRY_ATTEMPTS'
+RETRY = 'RETRY'
 MAX_EPISODES = 'MAX_EPISODES'
 LOG_LEVEL = 'LOG_LEVEL'
-ENABLE_RSS_FEED = 'ENABLE_RSS_FEED'
+RSS_FEED = 'RSS_FEED'
+TRANSCODE = 'TRANSCODE'
 
 CONFIG_VALUES = {
     ROOT_PATH:            { 'default': '../Spodcast/',
@@ -26,16 +31,16 @@ CONFIG_VALUES = {
     SKIP_EXISTING_FILES:  { 'default': 'True',
                             'type': bool,
                             'arg': '--skip-existing',
-                            'help': 'skip files with the same name and size' },
-    RETRY_ATTEMPTS:       { 'default': '5',
+                            'help': '[yes|no] skip files with the same name and size. Defaults to "yes".' },
+    RETRY:                { 'default': 5,
                             'type': int,
                             'arg': '--retry',
                             'help': 'retry count for Spotify API access' },
-    MAX_EPISODES:         { 'default': '1000',
+    MAX_EPISODES:         { 'default': 1000,
                             'type': int,
                             'arg': '--max-episodes',
                             'help': 'number of episodes to download' },
-    CHUNK_SIZE:           { 'default': '50000',
+    CHUNK_SIZE:           { 'default': 50000,
                             'type': int,
                             'arg': '--chunk-size',
                             'help': 'download chunk size' },
@@ -50,11 +55,15 @@ CONFIG_VALUES = {
     CREDENTIALS_LOCATION: { 'default': 'credentials.json',
                             'type': str,
                             'arg': '--credentials-location',
-                            'help': 'path to credentials file' },
-    ENABLE_RSS_FEED:      { 'default': 'True',
+                            'help': 'path to credentials file. If a relative path is used the file will be stored in the same directory as the configuration file (-c /path/to/config.json -> /path/to).' },
+    RSS_FEED:             { 'default': 'True',
                             'type': bool,
-                            'arg': '--rss',
-                            'help': 'add a (php) RSS feed server and related metadata for feed. To serve the feed, point a web server at the spodcast root path as configured using --root-path.' },
+                            'arg': '--rss-feed',
+                            'help': '[yes|no] add a (php) RSS feed server and related metadata for feed. To manage feeds, point a web server at the spodcast root path as configured using --root-path. Defaults to "yes".' },
+    TRANSCODE:            { 'default': 'False',
+                            'type': bool,
+                            'arg': '--transcode',
+                            'help': '[yes|no] transcode ogg/vorbis to mp3 (where applicable) - only needed for devices which do not support open formats (e.g. iOS). Defaults to "no".' },
     LOG_LEVEL:            { 'default': 'warning',
                             'type': str,
                             'arg': '--log-level',
@@ -111,6 +120,7 @@ class Config:
 
         cls.Values[CONFIG_DIR] = os.path.dirname(true_config_file_path)
         cls.Values[CONFIG_PATH] = str(true_config_file_path)
+        cls.Values[VERSION] = str(VERSION_STR)
 
     @classmethod
     def get_default_json(cls) -> Any:
@@ -172,19 +182,24 @@ class Config:
 
     @classmethod
     def get_credentials_location(cls) -> str:
-        return os.path.join(os.getcwd(), cls.get(CREDENTIALS_LOCATION))
+        credentials_location = cls.get(CREDENTIALS_LOCATION)
+        return credentials_location if os.path.isabs(credentials_location) else os.path.join(cls.get(CONFIG_DIR), cls.get(CREDENTIALS_LOCATION))
 
     @classmethod
-    def get_retry_attempts(cls) -> int:
-        return cls.get(RETRY_ATTEMPTS)
+    def get_retry(cls) -> int:
+        return cls.get(RETRY)
 
     @classmethod
     def get_max_episodes(cls) -> int:
         return cls.get(MAX_EPISODES)
 
     @classmethod
-    def get_enable_rss_feed(cls) -> bool:
-        return cls.get(ENABLE_RSS_FEED)
+    def get_rss_feed(cls) -> bool:
+        return cls.get(RSS_FEED)
+
+    @classmethod
+    def get_transcode(cls) -> bool:
+        return cls.get(TRANSCODE)
 
     @classmethod
     def get_log_level(cls) -> str:
@@ -197,3 +212,11 @@ class Config:
     @classmethod
     def get_config_path(cls) -> str:
         return cls.get(CONFIG_PATH)
+
+    @classmethod
+    def get_version_str(cls) -> str:
+        return cls.get(VERSION)
+
+    @classmethod
+    def get_version_int(cls) -> int:
+        return int(cls.get(VERSION).replace('.',''))
