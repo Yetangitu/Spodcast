@@ -827,8 +827,8 @@ $UPDATE_RATE=$settings['update_rate'];
         id = basename(url);
         max=document.getElementById('max-' + id);
         keep=document.getElementById('keep-' + id);
-        maxval = max.value;
-        keepval = keep.value;
+        maxval = parseInt(max.value);
+        keepval = parseInt(keep.value);
         if(maxval > keepval) {
             keeper = (maxval > 2) ? 5 : 2;
             if (confirm("Sync count " + maxval + " is higher than Keep count " + keepval + "\n\n" +
