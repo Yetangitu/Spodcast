@@ -512,7 +512,7 @@ case 'schedule':
 
 case 'transcode':
     $enable = (get($_POST['enable']) == "true" ? true : false);
-    $config['TRANSCODE']=($enable) ? 'True' : 'False';
+    $config['TRANSCODE']=$enable;
     $result = store($config, $SPODCAST_CONFIG);
     if ($result === SUCCESS) {
         $info['status'] = 'SUCCESS';
