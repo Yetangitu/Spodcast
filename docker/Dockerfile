@@ -3,7 +3,7 @@ FROM python:3-alpine
 COPY . /app
 WORKDIR /app
 
-RUN apk --no-cache add gcc libc-dev \
+RUN apk --no-cache add gcc libc-dev ffmpeg \
 	&& pip3 install .
 
 VOLUME ["/data"]
