@@ -419,7 +419,7 @@ function refresh_shows($feeds) {
         }
         $result = array_merge($result, $output);
     }
-    return [$return, $result];
+    return [$status, $result];
 }
 
 # terminating functions
