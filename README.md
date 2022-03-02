@@ -176,7 +176,7 @@ In "manual" mode _Spodcast_ does not do anything by itself, feeds can be kept up
 spodcast -c ~/.config/spodcast/spodcast.json --rss-feed no --max-episodes 3 https://open.spotify.com/show/4rOoJ6Egrf8K2IrywzwOMk`
 ```
 ## Web server configuration
-_Spodcast_ places a hidden `.index.php` file in the root path and each show directory. The one in the root directory is used to manage feeds while those in the show directories produce RSS feeds based on the information found in all `*.info` files in that directory. Configure the server to serve those `.index.php` files as index to make things work as intended. Don't forget to block all web access to files ending in `.json` and `.info` to make sure you _Spotify_ credentials (which are stored in hashed form in files named `spodcast-cred-MD5_HASH_OF_SPOTIFY_USER_NAME.json` in the root path) can not be accessed. For _nginx_ the following should suffice to produce an unencrypted (HTTP) feed under the domain name `spodcast.example.org` given a feed root directory (as configured using `--root-path`) of `/mnt/audio/spodcast` with _php-fpm 7.4_ listening on `unix:/run/php/php7.4-fpm.sock`:
+_Spodcast_ places a hidden `.index.php` file in the root path and each show directory. The one in the root directory is used to manage feeds while those in the show directories produce RSS feeds based on the information found in all `*.info` files in that directory. Configure the server to serve those `.index.php` files as index to make things work as intended. Don't forget to block all web access to files ending in `.json` and `.info` to make sure you _Spotify_ credentials (which are stored in hashed form in files named `spodcast-cred-MD5_HASH_OF_SPOTIFY_USER_NAME.json` in the root path) can not be accessed. Especially when using the transcoding feature (`--transcode yes`) on less powerful hardware (Raspberry Pi etc.) it can be necessary to increase the timeout for php-fpm/proxy/fastcgi requests. For _nginx_ the following should suffice to produce an unencrypted (HTTP) feed under the domain name `spodcast.example.org` given a feed root directory (as configured using `--root-path`) of `/mnt/audio/spodcast` with _php-fpm 7.4_ listening on `unix:/run/php/php7.4-fpm.sock`, using a 5-minute timeout for fastcgi requests:
 ```
 server {
         listen 80;
@@ -186,6 +186,9 @@ server {
         root /mnt/audio/spodcast;
 
         index .index.php;
+
+        fastcgi_read_timeout 300;
+        fastcgi_send_timeout 300;	
 
         # these files should not be accessible
         location ~\.(json|info)$ {
