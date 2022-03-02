@@ -191,7 +191,9 @@ def download_episode(episode_id) -> None:
                 podcast_name, link, description, image = get_info(episode_id, "show")
                 show_info = {}
                 if os.path.isfile(show_index_file_name):
-                    show_info = json_load(show_index_file_name)
+                    with open(show_index_file_name, encoding='utf-8') as file:
+                        show_info = json.load(file)
+                        file.close()
                 show_info["version"] = str(RSS_FEED_VERSION + Spodcast.CONFIG.get_version_str())
                 show_info["title"] = escape(podcast_name)
                 show_info["link"] = link

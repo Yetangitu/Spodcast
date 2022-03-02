@@ -106,6 +106,7 @@ const LOG_LEVEL='warning';
 const NOT_FOUND=-1;
 
 $SPODCAST_CONFIG=dirname(__FILE__)."/".SPODCAST_CONFIG;
+$SPODCAST_COMMAND=SPODCAST." -c ".$SPODCAST_CONFIG;
 
 # CLI
 if (PHP_SAPI == "cli") {
@@ -138,7 +139,6 @@ $settings=get_settings();
 $config=get_spodcast_config();
 $ERROR_MESSAGE=null;
 $ERROR_DETAILS=null;
-$SPODCAST_COMMAND=SPODCAST." -c ".$SPODCAST_CONFIG." --log-level ".$settings['log_level'];
 
 function get_feeds($dir) {
     global $SPODCAST_URL;
@@ -151,8 +151,8 @@ function get_feeds($dir) {
         $feeds[$info->link]['episodes']=count($episodes);
         $feeds[$info->link]['last']=date("Y-m-d",strtotime($episodes[0]['date']));
         $feeds[$info->link]['directory']=dirname($show_info);
-        $feeds[$info->link]['max']=$info->max ?? 2;
-        $feeds[$info->link]['keep']=$info->keep ?? 5;
+        $feeds[$info->link]['max']=$info->max ?? MAX_EPISODES;
+        $feeds[$info->link]['keep']=$info->keep ?? KEEP_EPISODES;
         $feeds[$info->link]['feed']=$SPODCAST_URL.basename(dirname($show_info));
     }
     uasort($feeds, fn ($a, $b) => strnatcmp($a['title'], $b['title']));
@@ -300,13 +300,13 @@ function update_scheduler($enable, $start, $rate) {
 }
 
 function login($username, $password, $return_output=false) {
-    global $SPODCAST_CONFIG;
     global $SPODCAST_COMMAND;
+    global $settings;
     $output = null;
     $retval = null;
     $tempfile=tempnam(sys_get_temp_dir(), 'spodcast');
     file_put_contents($tempfile, "$username $password");
-    $command=$SPODCAST_COMMAND . " -l ".$tempfile." 2>&1";
+    $command=$SPODCAST_COMMAND . " --log-level " . $settings['log_level'] . " -l ".$tempfile." 2>&1";
     exec($command, $output, $retval);
     unlink($tempfile);
 
@@ -332,11 +332,11 @@ function background_run($command, $id) {
 }
 
 function background_add_feed($url, $max) {
-    global $SPODCAST_CONFIG;
     global $SPODCAST_COMMAND;
+    global $settings;
     $output = null;
     $retval = null;
-    $command=$SPODCAST_COMMAND . " --max-episodes ".(int)$max." ".escapeshellarg($url);
+    $command=$SPODCAST_COMMAND  . " --log-level " . $settings['log_level'] . " --max-episodes ".(int)$max." ".escapeshellarg($url);
     list($retval, $pid) = background_run($command, $url);
     if ($retval == 0 && (int) $pid > 0) {
         return [$retval, $pid];
@@ -346,11 +346,11 @@ function background_add_feed($url, $max) {
 
 
 function add_feed($url, $max) {
-    global $SPODCAST_CONFIG;
     global $SPODCAST_COMMAND;
+    global $settings;
     $output = null;
     $retval = null;
-    $command=$SPODCAST_COMMAND . " --max-episodes ".(int)$max." ".escapeshellarg($url)." 2>&1";
+    $command=$SPODCAST_COMMAND  . " --log-level " . $settings['log_level'] . " --max-episodes ".(int)$max." ".escapeshellarg($url)." 2>&1";
     exec($command, $output, $retval);
     return [$retval, $output];
 }
@@ -597,7 +597,7 @@ foreach (array_keys($feeds) as $url) {
     }
 }
 
-$TRANSCODE_ENABLED=($config['TRANSCODE'] == "True") ? true : false;
+$TRANSCODE_ENABLED=(array_key_exists('TRANSCODE', $config)) ? (($config['TRANSCODE'] == "True") ? true : false) : false;
 $LOG_LEVEL=$config['LOG_LEVEL'];
 $UPDATE_ENABLED=$settings['update_enabled'];
 $UPDATE_START=$settings['update_start'];
