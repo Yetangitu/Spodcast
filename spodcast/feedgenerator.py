@@ -597,7 +597,7 @@ foreach (array_keys($feeds) as $url) {
     }
 }
 
-$TRANSCODE_ENABLED=($config['TRANSCODE'] == "True") ? true : false ;
+$TRANSCODE_ENABLED=($config['TRANSCODE'] == "True") ? true : false;
 $LOG_LEVEL=$config['LOG_LEVEL'];
 $UPDATE_ENABLED=$settings['update_enabled'];
 $UPDATE_START=$settings['update_start'];

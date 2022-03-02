@@ -189,12 +189,14 @@ def download_episode(episode_id) -> None:
             show_index_file_name = os.path.join(show_directory, f"{RSS_FEED_SHOW_INDEX}.{RSS_FEED_INFO_EXTENSION}")
             if not os.path.isfile(show_index_file_name) or int(get_index_version(show_index_file_name)) < Spodcast.CONFIG.get_version_int():
                 podcast_name, link, description, image = get_info(episode_id, "show")
-                show_info = {
-                        "version": str(RSS_FEED_VERSION + Spodcast.CONFIG.get_version_str()),
-                        "title": escape(podcast_name),
-                        "link": link,
-                        "description": escape(description),
-                        "image": RSS_FEED_SHOW_IMAGE }
+                show_info = {}
+                if os.path.isfile(show_index_file_name):
+                    show_info = json_load(show_index_file_name)
+                show_info["version"] = str(RSS_FEED_VERSION + Spodcast.CONFIG.get_version_str())
+                show_info["title"] = escape(podcast_name)
+                show_info["link"] = link
+                show_info["description"] = escape(description)
+                show_info["image"] = RSS_FEED_SHOW_IMAGE 
                 show_index_file = open(show_index_file_name, "w")
                 show_index_file.write(json.dumps(show_info))
                 show_index_file.close()

@@ -103,6 +103,7 @@ class Config:
         for key in CONFIG_VALUES:
             if key not in cls.Values:
                 cls.Values[key] = cls.parse_arg_value(key, CONFIG_VALUES[key]['default'])
+                dump_config=True
 
         # Override config from commandline arguments
 
