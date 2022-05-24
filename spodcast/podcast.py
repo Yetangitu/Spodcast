@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import time
+from datetime import datetime
 from html import escape
 import urllib.parse
 
@@ -59,11 +60,14 @@ def get_show_episodes(show_id_str) -> list:
             f'{SHOWS_URL}/{show_id_str}/episodes', limit=limit, offset=offset)
         offset += limit
         for episode in resp[ITEMS]:
-            episodes.append(episode[ID])
+            episodes.append([episode[ID], episode[RELEASE_DATE]])
         if len(resp[ITEMS]) < limit:
             break
 
-    return episodes
+    # some shows list episodes in the wrong order so reverse sort them by release date
+    episodes.sort(key=lambda x: datetime.strptime(x[1], "%Y-%m-%d"), reverse=True)
+
+    return [episode[0] for episode in episodes]
 
 
 def download_file(url, filepath):
