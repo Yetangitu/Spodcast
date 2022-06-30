@@ -19,7 +19,7 @@ def client(args) -> None:
             episode_id_str, show_id_str = regex_input_for_urls(spotify_url)
             log.debug(f"episode_id_str {episode_id_str}. show_id_str {show_id_str}")
             if episode_id_str is not None:
-                episode_id = EpisodeId.from_base62(episode_id_str)
+                episode_id = EpisodeId.from_base62(episode_id_str).hex_id()
                 log.debug("episode_id: %s", episode_id)
                 download_episode(episode_id)
             elif show_id_str is not None:
