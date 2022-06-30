@@ -137,6 +137,7 @@ class Spodcast:
     @classmethod
     def invoke_url(cls, url, tryCount=0):
         headers = cls.get_auth_header()
+        Spodcast.LOG.debug(headers)
         response = requests.get(url, headers=headers)
         responsetext = response.text
         responsejson = response.json()

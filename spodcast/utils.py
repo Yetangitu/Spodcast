@@ -5,6 +5,7 @@ from enum import Enum
 from typing import List, Tuple
 
 from spodcast.spodcast import Spodcast
+from spodcast.const import OPEN_SPOTIFY_URL
 
 valid_filename_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
 
@@ -47,3 +48,6 @@ def clean_filename(filename, whitelist=valid_filename_chars, replace=' '):
     cleaned_filename = ''.join(c for c in cleaned_filename if c in whitelist)
     return cleaned_filename
 
+def uri_to_url(spotify_id):
+    (spotify,sp_type,sp_id) = spotify_id.split(':')
+    return f'https://{OPEN_SPOTIFY_URL}/{sp_type}/{sp_id}'

@@ -2,8 +2,9 @@ import logging
 
 from itertools import islice
 from librespot.audio.decoders import AudioQuality
+from librespot.metadata import ShowId, EpisodeId
 
-from spodcast.podcast import download_episode, get_show_episodes
+from spodcast.podcast import download_episode, get_episodes
 from spodcast.utils import regex_input_for_urls
 from spodcast.spodcast import Spodcast
 
@@ -15,10 +16,15 @@ def client(args) -> None:
 
     if args.urls:
         for spotify_url in args.urls:
-            episode_id, show_id = regex_input_for_urls(spotify_url)
-            log.debug(f"episode_id {episode_id}. show_id {show_id}")
-            if episode_id is not None:
+            episode_id_str, show_id_str = regex_input_for_urls(spotify_url)
+            log.debug(f"episode_id_str {episode_id_str}. show_id_str {show_id_str}")
+            if episode_id_str is not None:
+                episode_id = EpisodeId.from_base62(episode_id_str)
+                log.debug("episode_id: %s", episode_id)
                 download_episode(episode_id)
-            elif show_id is not None:
-                for episode in islice(get_show_episodes(show_id), Spodcast.CONFIG.get_max_episodes()):
-                    download_episode(episode)
+            elif show_id_str is not None:
+                show_id = ShowId.from_base62(show_id_str)
+                log.debug("show_id: %s", show_id)
+                for episode_id in islice(get_episodes(show_id), Spodcast.CONFIG.get_max_episodes()):
+                    log.debug("episode_id: %s", episode_id)
+                    download_episode(episode_id)
