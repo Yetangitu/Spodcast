@@ -122,8 +122,10 @@ def download_stream(stream, filepath):
     time_start = time.time()
     downloaded = 0
     with open(filepath, 'wb') as file:
-        for _ in range(int(size / Spodcast.CONFIG.get_chunk_size()) + 1):
-            data = stream.input_stream.stream().read(Spodcast.CONFIG.get_chunk_size())
+        data = b""
+        while data := stream.input_stream.stream().read(Spodcast.CONFIG.get_chunk_size()):
+            if data == b"":
+                break
             file.write(data)
             downloaded += len(data)
             if Spodcast.CONFIG.get_download_real_time():
