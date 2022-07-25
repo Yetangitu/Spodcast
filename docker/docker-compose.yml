@@ -1,0 +1,36 @@
+services:
+  spodcast-cron:
+    image: heywoodlh/spodcast-cron:latest
+    volumes:
+      - spodcast_data:/data
+    restart: unless-stopped
+    environment:
+      - CRON_SCHEDULE=0 * * * *
+      - SPOTIFY_PODCAST_URLS=https://open.spotify.com/show/4rOoJ6Egrf8K2IrywzwOMk
+      - SPOTIFY_PASSWORD=myawesomepassword
+      - SPOTIFY_USERNAME=email@awesome.com
+      - MAX_EPISODES=1
+      
+  spodcast-php:
+    image: php:7-fpm
+    volumes:
+      - spodcast_data:/data
+    restart: unless-stopped
+    user: "101:101"
+    networks:
+    - spodcast
+
+  spodcast-web:
+    image: heywoodlh/spodcast-web:latest
+    volumes:
+      - spodcast_data:/data
+    restart: unless-stopped
+    networks:
+    - spodcast
+    ports:
+      - 8080:80
+
+networks:
+  spodcast:
+volumes:
+  spodcast_data:

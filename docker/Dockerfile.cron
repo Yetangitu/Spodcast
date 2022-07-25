@@ -1,17 +1,6 @@
-FROM python:3-alpine
+FROM heywoodlh/spodcast:latest
 
-COPY . /app
-WORKDIR /app
-
-RUN apk --no-cache add gcc libc-dev ffmpeg bash \
-	&& pip3 install .
-
-VOLUME ["/data"]
-WORKDIR /data
-
-COPY docker/run.sh /run.sh
-
-ENTRYPOINT ["/run.sh"]
+COPY docker/cron.sh /cron.sh
 
 LABEL description="Spodcast is a caching Spotify podcast to RSS proxy. \
 Using Spodcast you can follow Spotify-hosted netcasts/podcasts using any \
@@ -20,3 +9,4 @@ is not compatible with the Spotify (web) app."
 LABEL version="0.5.2"
 LABEL org.opencontainers.image.authors="Yetangitu and others"
 
+ENTRYPOINT /cron.sh
