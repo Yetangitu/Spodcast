@@ -46,9 +46,84 @@ $ pip install .
 
 Once installed this way it can be uninstalled using `pip uninstall spodcast` if so required. If you're planning to use the RSS proxy and web UI you need to make sure the `spodcast` command is available to the web server user.
 
-### Usage with Docker: 
+## Usage with Docker: 
 
 Pre-built images are [available at Docker Hub](https://hub.docker.com/r/heywoodlh/spodcast). Refer to documentation below on how to build the image locally if that is desired.
+
+### A Note on Environment Variables:
+
+The Spodcast images are built to either be configured exclusively through environment variables OR by passing arguments to the image -- if arguments are passed to the container any environment variables will be ignored.
+
+Here is the list of permitted environment variables with a brief description:
+
+| Variable | Default Value | Description | 
+|----------|---------------|-------------|
+| SPOTIFY_PASSWORD | None | Spotify password |
+| SPOTIFY_USERNAME | None | Spotify username |
+| SPOTIFY_PODCAST_URLS | None | URLs of podcasts to download from spotify (separated by space) |
+| CRON_SCHEDULE | `0 0 * * Sun` | Cron schedule for how often [heywoodlh/spodcast-cron](https://hub.docker.com/r/heywoodlh/spodcast-cron) will attempt to download content from Spotify | 
+| SPODCAST_ROOT | `/data` | Where all assets will go in the container filesystem | 
+| SPODCAST_HTML | `${SPODCAST_ROOT}/html` | Where HTML content will be places in container filesystem |
+| SPODCAST_CONFIG_JSON | `${SPODCAST_ROOT}/spodcast.json` | Location of the spodcast config file | 
+| SPOTIFY_CREDS_JSON | `${SPODCAST_ROOT}/creds.json` | Location of the file containing Spotify credentials that Spodcast will use to continue logging in |
+| SPOTIFY_RC_PATH | `${SPODCAST_ROOT}/spotify.rc` | Location of file containing creds to initially login | 
+| MAX_EPISODES | `10` | Max amount of episodes to download per podcast | 
+| LOG_LEVEL | `info` | Log level of Spodcast |
+| CHUNK_SIZE | `50000` | Download chunk size |
+| RSS_FEED | `yes` | Create an RSS feed for a web server | 
+| TRANSCODE | `no` | Transcode to MP3 format (i.e. so iOS devices can play the audio files) | 
+| LANGUAGE | `en` | Language of the content | 
+| SKIP_EXISTING | `yes` | Do not re-download episodes that already exist on filesystem |
+
+`SPOTIFY_PASSWORD`, `SPOTIFY_USERNAME`, and `SPOTIFY_PODCAST_URLS` are the only ones that are absolutely required -- everything else has a default value that is considered sane that it will fall back to if left undefined.
+
+
+### Usage with Docker-Compose and environment variables:
+
+The following `docker-compose.yml` (also available at [docker/docker-compose.yml](docker/docker-compose.yml)) should work to easily deploy Spodcast, a web server and PHP server:
+
+```
+services:
+  spodcast-cron:
+    image: heywoodlh/spodcast-cron:latest
+    volumes:
+      - spodcast_data:/data
+    restart: unless-stopped
+    environment:
+      - CRON_SCHEDULE=0 * * * *
+      - SPOTIFY_PODCAST_URLS=https://open.spotify.com/show/4rOoJ6Egrf8K2IrywzwOMk
+      - SPOTIFY_PASSWORD=myawesomepassword
+      - SPOTIFY_USERNAME=email@awesome.com
+      - MAX_EPISODES=1
+      
+  spodcast-php:
+    image: php:7-fpm
+    volumes:
+      - spodcast_data:/data
+    restart: unless-stopped
+    user: "101:101"
+    networks:
+    - spodcast
+
+  spodcast-web:
+    image: heywoodlh/spodcast-web:latest
+    volumes:
+      - spodcast_data:/data
+    restart: unless-stopped
+    networks:
+    - spodcast
+    ports:
+      - 8080:80
+
+networks:
+  spodcast:
+volumes:
+  spodcast_data:
+```
+
+*Note: if this is the first time running Spodcast, the web server will error out with a 404. That is due to no HTML content having been setup by Spodcast yet. When running this the first time, it would be recommended to set `CRON_SCHEDULE` to something a bit more aggressive like `* * * * *` so that way episodes will be downloaded every minute and then once the initial HTML content has been populated change the `CRON_SCHEDULE` to something less aggressive. 
+
+### Using the Docker CLI and supplying arguments:
 
 Prepare `spodcast` directory (this example assumes you will store Spodcast's data in `/tmp/spodcast`):
 
