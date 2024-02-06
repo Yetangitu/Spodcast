@@ -51,8 +51,10 @@ def get_episode_info(episode_id_hex):
     external_url = info.external_url if info.external_url else None
     pt = info.publish_time
     release_date = f'{pt.year}-{pt.month}-{pt.day}T{pt.hour}:{pt.minute}:00Z'
+    date_temp = datetime.strptime(release_date, '%Y-%m-%dT%H:%M:%SZ')
+    release_date_clean = f'{date_temp.strftime("%Y")}-{date_temp.strftime("%m")}-{date_temp.strftime("%d")}'
 
-    return podcast_name, podcast_id, duration_ms, episode_name, description, release_date, uri, external_url
+    return podcast_name, podcast_id, duration_ms, episode_name, description, release_date, uri, external_url, release_date_clean
 
 
 def get_episodes(show_id):
@@ -151,14 +153,14 @@ def download_stream(stream, filepath):
 
 def download_episode(episode_id) -> None:
     try:
-        podcast_name, podcast_id, duration_ms, episode_name, description, release_date, uri, download_url = get_episode_info(episode_id)
+        podcast_name, podcast_id, duration_ms, episode_name, description, release_date, uri, download_url, release_date_clean = get_episode_info(episode_id)
 
         if podcast_name is None:
             log.warning('Skipping episode (podcast NOT FOUND)')
         elif episode_name is None:
             log.warning('Skipping episode (episode NOT FOUND)')
         else:
-            filename = clean_filename(podcast_name + ' - ' + episode_name)
+            filename = clean_filename(release_date_clean + ' - ' + podcast_name + ' - ' + episode_name)
             show_directory = os.path.realpath(os.path.join(Spodcast.CONFIG.get_root_path(), clean_filename(podcast_name) + '/'))
             os.makedirs(show_directory, exist_ok=True)
 
